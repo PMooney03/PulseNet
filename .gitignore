@@ -1,0 +1,14 @@
+build/
+out/
+cmake-build-*/
+.cache/
+data/*.db
+data/*.db-wal
+data/*.db-shm
+*.db
+*.db-wal
+*.db-shm
+.vs/
+.vscode/
+.idea/
+compile_commands.json
