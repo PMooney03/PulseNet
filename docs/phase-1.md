@@ -24,7 +24,7 @@ pulsenet/
 └── scripts/verify-phase1.ps1   # Docker build + tests on this machine
 ```
 
-The scheduler, the REST API, and the React app are not created yet. TCP, HTTP, HTTPS, and DNS checks are Phase 2.
+TCP, HTTP, HTTPS, and DNS checks are Phase 2. The scheduler, incidents, the HTTP API, and the dashboard sit on this storage layer.
 
 ## What owns what
 

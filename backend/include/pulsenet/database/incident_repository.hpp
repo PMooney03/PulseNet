@@ -18,6 +18,7 @@ public:
     [[nodiscard]] Result<std::int64_t> insert(const Incident& incident);
     [[nodiscard]] Result<Incident> find_by_id(std::int64_t id);
     [[nodiscard]] Result<std::vector<Incident>> list_open(int limit = 100);
+    [[nodiscard]] Result<std::vector<Incident>> list_recent(int limit = 50);
     [[nodiscard]] Result<std::vector<Incident>> list_for_target(std::int64_t target_id,
                                                                 int limit = 100);
     // Resolving an already-resolved incident succeeds and keeps the original time.

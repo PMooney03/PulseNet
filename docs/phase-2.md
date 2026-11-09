@@ -1,6 +1,6 @@
 # Phase 2 — one round of checks
 
-Phase 2 measures a target and stores the result. It does not repeat on a timer. `pulsenet --check` runs every stored target once, prints a line for each, and exits. The scheduler that keeps doing that is Phase 3.
+Phase 2 measures a target and stores the result. `pulsenet --check` still runs every stored target once, prints a line for each, and exits. `pulsenet --watch` and `pulsenet --serve` repeat those checks on each target's interval.
 
 ## What a check is
 

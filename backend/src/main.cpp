@@ -1,14 +1,19 @@
+#include "pulsenet/api/http_server.hpp"
 #include "pulsenet/config.hpp"
 #include "pulsenet/database/database.hpp"
+#include "pulsenet/database/incident_repository.hpp"
 #include "pulsenet/database/migrator.hpp"
 #include "pulsenet/database/result_repository.hpp"
 #include "pulsenet/database/target_repository.hpp"
 #include "pulsenet/models/monitor_target.hpp"
 #include "pulsenet/monitoring/check_service.hpp"
 #include "pulsenet/monitoring/probe_engine.hpp"
+#include "pulsenet/monitoring/scheduler.hpp"
 #include "pulsenet/utilities/logger.hpp"
 
+#include <atomic>
 #include <chrono>
+#include <csignal>
 #include <exception>
 #include <iostream>
 #include <optional>
@@ -21,6 +26,10 @@ namespace {
 
 constexpr std::string_view kDemoName = "Google DNS";
 constexpr std::string_view kDemoHost = "8.8.8.8";
+
+std::atomic<bool> g_stop{false};
+
+void on_signal(int) { g_stop.store(true); }
 
 void print_demo(const MonitorTarget& target) {
     std::cout << "demo_id: " << target.id << '\n';
@@ -108,11 +117,50 @@ int run(const std::vector<std::string>& args) {
         return 1;
     }
 
+    ResultRepository results(database);
+    IncidentRepository incidents(database);
+    ProbeEngine engine;
+    CheckService service(results, engine);
+
+    if (config.watch) {
+        const auto listen = parse_listen_address(config.listen);
+        Scheduler scheduler(targets, results, incidents, service);
+        scheduler.set_teams_webhook(config.teams_webhook);
+        std::optional<HttpServer> server;
+        if (config.serve) {
+            server.emplace(HttpServerOptions{listen.host, listen.port, config.web_root}, targets, results, incidents,
+                           scheduler);
+            server->start();
+            scheduler.set_listener([&server](const SchedulerReport& report) { server->publish(report); });
+        }
+        std::signal(SIGINT, on_signal);
+#ifdef SIGTERM
+        std::signal(SIGTERM, on_signal);
+#endif
+        std::cout << "PulseNet " << PULSENET_VERSION << '\n';
+        std::cout << "status: ready\n";
+        std::cout << "database: " << config.database_path.string() << '\n';
+        std::cout << "schema_version: " << database.schema_version() << '\n';
+        std::cout << "targets: " << listed.value().size() << '\n';
+        std::cout << "monitoring: watching\n";
+        if (server) {
+            std::cout << "listening: " << listen.host << ':' << server->port() << '\n';
+        }
+        std::cout << "teams: " << (config.teams_webhook.empty() ? "off" : "on") << '\n';
+        if (demo) {
+            print_demo(*demo);
+        }
+        log_info("watching");
+        scheduler.run(g_stop);
+        if (server) {
+            server->stop();
+        }
+        log_info("stopped");
+        return 0;
+    }
+
     std::optional<std::vector<MonitorResult>> checks;
     if (config.check) {
-        ResultRepository results(database);
-        ProbeEngine engine;
-        CheckService service(results, engine);
         auto round = service.run_round(listed.value());
         if (!round) {
             log_error(round.error().message);

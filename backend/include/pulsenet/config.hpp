@@ -20,9 +20,21 @@ struct Config {
     LogLevel log_level{LogLevel::Info};
     bool demo{false};
     bool check{false};
+    bool watch{false};
+    bool serve{false};
+    std::string listen{"127.0.0.1:8080"};
+    std::filesystem::path web_root;
+    std::string teams_webhook;
     bool show_help{false};
     bool show_version{false};
 };
+
+struct ListenAddress {
+    std::string host{"127.0.0.1"};
+    unsigned short port{8080};
+};
+
+[[nodiscard]] ListenAddress parse_listen_address(std::string_view text);
 
 // Precedence, lowest to highest: built-in defaults, JSON file, environment,
 // command-line flags. An empty environment variable is ignored.

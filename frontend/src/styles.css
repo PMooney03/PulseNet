@@ -1,0 +1,107 @@
+:root {
+  color: #e7ecf3;
+  background: #10141a;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 15px;
+}
+
+* { box-sizing: border-box; }
+
+body { margin: 0; }
+
+button, input, select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: #2f6fed;
+  border: 0;
+  border-radius: 8px;
+  padding: 0.55rem 0.85rem;
+  cursor: pointer;
+}
+
+button.ghost {
+  background: transparent;
+  border: 1px solid #3c4654;
+}
+
+button:disabled { opacity: 0.6; cursor: wait; }
+
+.app { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+
+header.top { display: flex; flex-direction: column; align-items: stretch; gap: 0.85rem; }
+.top-row { display: flex; justify-content: space-between; gap: 1rem; align-items: end; }
+header p { margin: 0.25rem 0 0; color: #9aa6b6; }
+.brand { color: inherit; text-decoration: none; }
+.brand h1 { margin: 0; }
+nav { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+nav a { color: #9aa6b6; text-decoration: none; padding: 0.35rem 0.7rem; border-radius: 8px; }
+nav a.active { background: #243044; color: #e7ecf3; }
+
+.counts { display: flex; gap: 0.6rem; flex-wrap: wrap; margin: 1.25rem 0; }
+.counts a, .panel, .table-wrap, form.panel, .facts div {
+  background: #1a212b;
+  border: 1px solid #2a3340;
+  border-radius: 12px;
+}
+.counts a { display: block; padding: 0.7rem 0.9rem; min-width: 7rem; color: inherit; text-decoration: none; }
+.counts a:hover, a.card:hover { border-color: #4c5d73; }
+.counts strong, .facts strong { display: block; font-size: 1.4rem; }
+.counts span, .facts span { color: #9aa6b6; font-size: 0.85rem; }
+
+.layout { display: grid; grid-template-columns: 1.4fr 0.8fr; gap: 1rem; }
+aside { display: flex; flex-direction: column; gap: 1rem; }
+@media (max-width: 800px) {
+  .layout { grid-template-columns: 1fr; }
+}
+
+.section-head { display: flex; justify-content: space-between; align-items: baseline; }
+.section-head a, .back, td a { color: #9ec4f5; text-decoration: none; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0.7rem; }
+a.card { display: block; color: inherit; text-decoration: none; }
+.card-top { display: flex; justify-content: space-between; gap: 0.6rem; align-items: center; }
+.facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.6rem; margin: 1rem 0; }
+.facts div { padding: 0.65rem 0.75rem; }
+.target-page h2, .target-page h3, .section-head h2 { margin: 0.2rem 0 0.5rem; }
+.target-page h3 { margin-top: 1.1rem; font-size: 1rem; }
+a.incident { display: block; color: inherit; text-decoration: none; }
+
+.panel { padding: 1rem; }
+.panel h2 { margin: 0 0 0.8rem; font-size: 1rem; }
+
+form.panel { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1rem; }
+form label { display: flex; flex-direction: column; gap: 0.25rem; color: #9aa6b6; font-size: 0.85rem; }
+form input, form select, .filters select {
+  background: #10141a;
+  border: 1px solid #3c4654;
+  border-radius: 8px;
+  padding: 0.45rem 0.55rem;
+}
+form button { grid-column: 1 / -1; justify-self: start; }
+
+.filters { display: flex; gap: 0.5rem; margin-bottom: 0.7rem; }
+
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 0.55rem 0.4rem; border-bottom: 1px solid #2a3340; }
+th { color: #9aa6b6; font-weight: 600; font-size: 0.8rem; }
+tbody tr:hover { background: #202833; }
+
+.pill { border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.8rem; text-transform: lowercase; }
+.online { background: #143226; color: #8ee0b2; }
+.degraded { background: #3a2e12; color: #f0cc7a; }
+.offline { background: #3a1717; color: #f0a0a0; }
+.unknown { background: #2a3140; color: #b7c0cc; }
+.critical { background: #3a1717; color: #f0a0a0; }
+.warning { background: #3a2e12; color: #f0cc7a; }
+.info { background: #1d3148; color: #9ec4f5; }
+.resolved { background: #143226; color: #8ee0b2; }
+
+.incident, .history li { padding: 0.55rem 0; border-bottom: 1px solid #2a3340; }
+.muted { color: #9aa6b6; }
+.error { color: #f0a0a0; }
+.actions { display: flex; gap: 0.5rem; margin: 0.6rem 0; }
+ul { list-style: none; padding: 0; margin: 0; }
+.live { font-size: 0.85rem; color: #8ee0b2; }
+.live.off { color: #f0cc7a; }

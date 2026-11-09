@@ -4,6 +4,9 @@ add_executable(pulsenet_tests
     test_persistence.cpp
     test_health.cpp
     test_probes.cpp
+    test_incidents.cpp
+    test_scheduler.cpp
+    test_api.cpp
 )
 
 target_link_libraries(pulsenet_tests PRIVATE pulsenet_core GTest::gtest_main)

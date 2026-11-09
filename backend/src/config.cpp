@@ -46,6 +46,12 @@ void apply_file(Config& config, const std::filesystem::path& path) {
             }
             config.log_level = *level;
         }
+        if (document.contains("teams_webhook")) {
+            if (!document["teams_webhook"].is_string()) {
+                throw ConfigError("teams_webhook must be a string");
+            }
+            config.teams_webhook = document["teams_webhook"].get<std::string>();
+        }
     } catch (const ConfigError&) {
         throw;
     } catch (const std::exception& ex) {
@@ -69,6 +75,11 @@ void apply_environment(Config& config) {
         }
         config.log_level = *parsed;
     }
+    if (const char* webhook = std::getenv("PULSENET_TEAMS_WEBHOOK")) {
+        if (webhook[0] != '\0') {
+            config.teams_webhook = webhook;
+        }
+    }
 }
 
 void apply_flags(Config& config, const std::vector<std::string>& args) {
@@ -82,6 +93,17 @@ void apply_flags(Config& config, const std::vector<std::string>& args) {
             config.demo = true;
         } else if (arg == "--check") {
             config.check = true;
+        } else if (arg == "--watch") {
+            config.watch = true;
+        } else if (arg == "--serve") {
+            config.serve = true;
+            config.watch = true;
+        } else if (arg == "--listen") {
+            config.listen = require_value(args, index, arg);
+        } else if (arg == "--web") {
+            config.web_root = require_value(args, index, arg);
+        } else if (arg == "--teams-webhook") {
+            config.teams_webhook = require_value(args, index, arg);
         } else if (arg == "--db") {
             config.database_path = require_value(args, index, arg);
         } else if (arg == "--log-level") {
@@ -117,6 +139,7 @@ std::string_view usage_text() {
            "\n"
            "Usage:\n"
            "  pulsenet [--db PATH] [--log-level LEVEL] [--config FILE] [--demo] [--check]\n"
+           "  pulsenet --serve [--listen HOST:PORT] [--web DIR] [--demo]\n"
            "\n"
            "Options:\n"
            "  --db PATH          SQLite database file (default: data/pulsenet.db)\n"
@@ -124,16 +147,44 @@ std::string_view usage_text() {
            "  --config FILE      JSON config file\n"
            "  --demo             Create the sample Google DNS target if it is missing\n"
            "  --check            Run one TCP, HTTP, HTTPS, or DNS check per target, then exit\n"
+           "  --watch            Keep checking targets on their intervals until Ctrl+C\n"
+           "  --serve            Run the scheduler, HTTP API, and dashboard until Ctrl+C\n"
+           "  --listen HOST:PORT Address for --serve (default: 127.0.0.1:8080)\n"
+           "  --web DIR          Dashboard files to serve (the frontend build)\n"
+           "  --teams-webhook URL  Teams Workflows webhook for critical incidents\n"
            "  --version          Print the version and exit\n"
            "  --help             Show this help and exit\n"
            "\n"
            "Environment variables are overridden by flags:\n"
            "  PULSENET_DATABASE_PATH\n"
            "  PULSENET_LOG_LEVEL\n"
+           "  PULSENET_TEAMS_WEBHOOK\n"
            "\n"
            "Phase 1 stores monitors in SQLite.\n"
            "--check measures every stored target once.\n"
-           "The continuous scheduler, API, and dashboard are later phases.\n";
+           "--serve keeps checking and opens the dashboard.\n";
+}
+
+ListenAddress parse_listen_address(const std::string_view text) {
+    const auto colon = text.rfind(':');
+    if (colon == std::string_view::npos || colon == 0 || colon + 1 >= text.size()) {
+        throw ConfigError("listen address must be host:port");
+    }
+    const auto host = std::string(text.substr(0, colon));
+    const auto port_text = std::string(text.substr(colon + 1));
+    int port = 0;
+    try {
+        std::size_t consumed = 0;
+        port = std::stoi(port_text, &consumed, 10);
+        if (consumed != port_text.size() || port < 1 || port > 65535) {
+            throw ConfigError("invalid listen port");
+        }
+    } catch (const ConfigError&) {
+        throw;
+    } catch (const std::exception&) {
+        throw ConfigError("invalid listen port");
+    }
+    return ListenAddress{host, static_cast<unsigned short>(port)};
 }
 
 Config load_config(const std::vector<std::string>& args) {
@@ -145,6 +196,9 @@ Config load_config(const std::vector<std::string>& args) {
     apply_flags(config, args);
     if (config.database_path.empty()) {
         throw ConfigError("database path is empty");
+    }
+    if (!config.teams_webhook.empty() && !config.teams_webhook.starts_with("https://")) {
+        throw ConfigError("teams webhook must be an https URL");
     }
     return config;
 }

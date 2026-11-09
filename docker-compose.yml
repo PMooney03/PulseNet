@@ -1,0 +1,12 @@
+services:
+  pulsenet:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      PULSENET_TEAMS_WEBHOOK: ${PULSENET_TEAMS_WEBHOOK:-}
+    volumes:
+      - pulsenet-data:/data
+
+volumes:
+  pulsenet-data:

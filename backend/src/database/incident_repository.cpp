@@ -138,6 +138,15 @@ Result<std::vector<Incident>> IncidentRepository::list_open(int limit) {
                      limit, std::nullopt);
 }
 
+Result<std::vector<Incident>> IncidentRepository::list_recent(int limit) {
+    if (limit < 1 || limit > kMaxLimit) {
+        return Result<std::vector<Incident>>::failure(
+            Error{ErrorCode::Validation, "Limit must be between 1 and 10000"});
+    }
+    return list_with(database_, std::string(kSelect) + " ORDER BY started_at_ms DESC, id DESC LIMIT ?", limit,
+                     std::nullopt);
+}
+
 Result<std::vector<Incident>> IncidentRepository::list_for_target(std::int64_t target_id, int limit) {
     if (target_id <= 0) {
         return Result<std::vector<Incident>>::failure(Error{ErrorCode::Validation, "Target id is required"});

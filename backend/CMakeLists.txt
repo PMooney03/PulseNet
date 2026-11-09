@@ -60,9 +60,14 @@ add_library(pulsenet_core
     src/database/result_repository.cpp
     src/database/incident_repository.cpp
     src/monitoring/health.cpp
+    src/monitoring/incident_detector.cpp
+    src/monitoring/diagnostics.cpp
     src/monitoring/probe_engine.cpp
     src/monitoring/check_service.cpp
+    src/monitoring/scheduler.cpp
+    src/monitoring/teams_notifier.cpp
     src/networking/sessions.cpp
+    src/api/http_server.cpp
 )
 
 target_include_directories(pulsenet_core

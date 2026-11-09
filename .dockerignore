@@ -1,0 +1,7 @@
+.git
+build
+out
+frontend/node_modules
+frontend/dist
+data
+*.db

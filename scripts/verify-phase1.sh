@@ -47,4 +47,4 @@ grep -q "check: Google DNS status=" /tmp/check-demo.out
 grep -q "monitoring: round complete" /tmp/check-demo.out
 
 echo
-echo "Phase 2 verification passed."
+echo "PulseNet verification passed."

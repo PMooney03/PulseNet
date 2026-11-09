@@ -12,3 +12,6 @@ data/*.db-shm
 .vscode/
 .idea/
 compile_commands.json
+frontend/node_modules/
+frontend/dist/
+.env
